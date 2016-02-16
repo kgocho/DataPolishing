@@ -28,7 +28,7 @@ print "t1: ", t1
 """
 
 igraph.summary(b.Graph)
-print b.Graph.maximal_cliques(min = 3)
+#print b.Graph.maximal_cliques(min = 3)
 print len(b.Graph.maximal_cliques(min = 3))
 start_time = time.clock()
 b.data_polish(polish_ratio = pr)
@@ -39,7 +39,7 @@ print "t2: ", t2
 
 #print a.Graph.maximal_cliques(min = 3)
 #print len(a.Graph.maximal_cliques(min = 3))
-print b.Graph.maximal_cliques(min = 3)
+#print b.Graph.maximal_cliques(min = 3)
 print len(b.Graph.maximal_cliques(min = 3))
 
 #igraph.summary(a.Graph)
