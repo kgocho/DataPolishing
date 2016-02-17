@@ -25,12 +25,12 @@ class DataPolishing:
             self.Graph.delete_edges((vertex0,vertex1))
 
     def data_polish_direct(self, polish_ratio = 0.3, loop = 30):      #directな方法
-        for i in range(loop):
+        for i in xrange(loop):
             sim = self.Graph.similarity_jaccard()
             temp = self.Graph.get_edgelist()
-            for j in self.Graph.vs():
-                for k in [x for x in self.Graph.vs() if x.index < j.index]:
-                    self.polish(j.index, k.index, sim, polish_ratio)
+            for j in xrange(self.Graph.vcount()):
+                for k in [x for x in xrange(self.Graph.vcount()) if x < j]:
+                    self.polish(j, k, sim, polish_ratio)
             if(temp == self.Graph.get_edgelist()):
                 print "break at " + str(i+1) + " times"
                 break
