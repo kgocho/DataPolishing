@@ -51,7 +51,7 @@ class DataPolishing:
             #igraph.summary(self.Graph)
         print "end", i+1 , "times"
 
-    def jaccard(self):
+    def jaccard(self):                                          #グラフがスパースならば高速に類似度を計算
         sim = np.zeros([self.Graph.vcount(), self.Graph.vcount()])
         intersection = [0] * self.Graph.vcount()
         for u in xrange(self.Graph.vcount()):
