@@ -4,13 +4,17 @@ Created on 2016/02/05
 
 @author: gocho
 '''
+from igraph.test.cliques import CliqueTests
+from igraph.test import cliques
 """
 データ研磨の手法の実装
 論文
 "Micro-Clustering: Finding Small Clusters in Large Diversity, Takeaki Uno et.al"
 """
 
+import igraph
 import numpy as np
+import random
 
 class DataPolishing:
     def __init__(self, Graph):
@@ -51,7 +55,7 @@ class DataPolishing:
             #igraph.summary(self.Graph)
         print "end", i+1 , "times"
 
-    def jaccard(self):                                          #グラフがスパースならば高速に類似度を計算
+    def jaccard(self):
         sim = np.zeros([self.Graph.vcount(), self.Graph.vcount()])
         intersection = [0] * self.Graph.vcount()
         for u in xrange(self.Graph.vcount()):
@@ -67,3 +71,46 @@ class DataPolishing:
                 sim[u][v] = sim[v][u]
                 intersection[v] = 0
         return sim
+
+class Experiment():
+    def __init__(self, *args, **kwds):          #初期化。python-igraphのグラフ初期化をそのまま利用
+        self.Graph = igraph.Graph(*args, **kwds)
+        self.clique_list = []
+
+    def make_clique(self, clique_size, multiplicity = 1):
+        if(self.Graph.vcount() < clique_size):
+            print "Error. Clique size must be less than Graph size"
+        else:
+            clique_list = random.sample(xrange(self.Graph.vcount()), clique_size)
+            self.clique_list.append(clique_list)
+            edge_list = [(i, j) for i in clique_list for j in [x for x in clique_list if x < i]]
+            self.Graph.add_edges(edge_list)
+
+    def make_Graph(self, clique_size, clique_num, multiplicity = 1):
+        for i in xrange(clique_num):
+            self.make_clique(clique_size)
+
+    def recall(self, Graph):
+        p = []
+        for i in self.clique_list:
+            k = 0
+            for j in Graph.maximal_cliques(min = 3):
+                if k < len(set(i) & set(j)):
+                    k = len(set(i) & set(j))
+            p.append(float(k) / len(set(i)))
+        return sum(p) / len(p)
+
+    def precision(self, Graph):
+        p = []
+        for i in Graph.maximal_cliques(min = 3):
+            k = 0
+            for j in self.clique_list:
+                if k < len(set(i) & set(j)):
+                    k = len(set(i) & set(j))
+            p.append(float(k) / len(set(i)))
+        return sum(p) / len(p)
+
+    def accuracy(self, Graph):
+        p = self.precision(Graph)
+        r = self.recall(Graph)
+        return 2*p*r / (p+r)
