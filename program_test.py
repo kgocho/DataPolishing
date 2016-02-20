@@ -1,48 +1,45 @@
-# -*- coding: utf-8 -*-
 '''
-Created on 2016/02/10
+Created on 2016/02/05
 
 @author: gocho
 '''
 
 import igraph
-import time
 from data_polishing import DataPolishing
+from data_polishing import Experiment
 
-pr = 0.3
-g = igraph.Graph.GRG(500, 0.1)     #ランダムグラフの作成。頂点を単位正方形上にランダムで配置する。引数(node数、dist)、頂点がdist以内なら辺をつなぐ
-#g = igraph.read("random_graph.gml")
-g2 = g.copy()
-a = DataPolishing(g)
-b = DataPolishing(g2)
-
-"""
-igraph.summary(a.Graph)
-#print a.Graph.maximal_cliques(min = 3)
-#print len(a.Graph.maximal_cliques(min = 3))
-start_time = time.clock()
-a.data_polish_direct(polish_ratio = pr)
-end_time = time.clock()
-t1 = end_time - start_time
-print "t1: ", t1
-"""
-
-igraph.summary(b.Graph)
-#print b.Graph.maximal_cliques(min = 3)
-print len(b.Graph.maximal_cliques(min = 3))
-start_time = time.clock()
-b.data_polish(polish_ratio = pr)
-end_time = time.clock()
-t2 = end_time - start_time
-print "t2: ", t2
-
-
-#print a.Graph.maximal_cliques(min = 3)
-#print len(a.Graph.maximal_cliques(min = 3))
-#print b.Graph.maximal_cliques(min = 3)
-print len(b.Graph.maximal_cliques(min = 3))
-
+pr = 0.35
+#g = igraph.read("E:\\IT_Fundamental\\graphC.gml")
+#g = igraph.read("randam_test.gml")
+#g = igraph.Graph.GRG(5000, 0.02)     #ランダムグラフの作成。頂点を単位正方形上にランダムで配置する。引数(node数、dist)、頂点がdist以内なら辺をつなぐ
+#igraph.write(g, "randam_test.gml")
+#a = DataPolishing(g)
 #igraph.summary(a.Graph)
-#igraph.write(a.Graph, "polished_random_graph_direct.gml")
-igraph.summary(b.Graph)
-#igraph.write(b.Graph, "polished_random_graph.gml")
+#print a.Graph.maximal_cliques(min = 3)
+#print len(a.Graph.maximal_cliques(min = 3))
+
+#a.data_polish(polish_ratio = pr)
+
+#print a.Graph.maximal_cliques(min = 3)
+#print len(a.Graph.maximal_cliques(min = 3))
+#igraph.write(a.Graph, "polished_grapht.gml")
+#igraph.summary(a.Graph)
+
+c = Experiment(5000)
+
+igraph.summary(c.Graph)
+c.make_Graph(30,100)
+igraph.summary(c.Graph)
+#print len(c.clique_list)
+g = c.Graph.copy()
+d = DataPolishing(g)
+igraph.summary(d.Graph)
+print len(d.Graph.maximal_cliques(min = 3))
+#igraph.write(d.Graph, "randam_clique_5000.gml")
+d.data_polish(polish_ratio = pr)
+igraph.summary(d.Graph)
+print len(d.Graph.maximal_cliques(min = 3))
+#igraph.write(d.Graph, "polished_clique_5000.gml")
+print "recall = " , c.recall(d.Graph)
+print "precision = " , c.precision(d.Graph)
+print "accuracy = " , c.accuracy(d.Graph)
