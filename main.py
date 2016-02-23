@@ -7,30 +7,54 @@ Created on 2016/02/05
 
 import igraph
 from data_polishing import DataPolishing
+from data_polishing import Experiment
 
 pr = 0.3
 #g = igraph.read("E:\\IT_Fundamental\\graphC.gml")
-g = igraph.Graph.GRG(500, 0.1)     #ランダムグラフの作成。頂点を単位正方形上にランダムで配置する。引数(node数、dist)、頂点がdist以内なら辺をつなぐ
-g2 = g.copy()
-#print g
-a = DataPolishing(g)
-b = DataPolishing(g2)
-igraph.summary(a.Graph)
-#print a.Graph.maximal_cliques(min = 3)
-print len(a.Graph.maximal_cliques(min = 3))
-
-#a.data_polish_direct(polish_ratio = pr)
-
-b.data_polish(polish_ratio = pr)
-#print a.Graph
+#g = igraph.read("randam_test.gml")
+#g = igraph.Graph.GRG(5000, 0.02)     #ランダムグラフの作成。頂点を単位正方形上にランダムで配置する。引数(node数、dist)、頂点がdist以内なら辺をつなぐ
+#igraph.write(g, "randam_test.gml")
+#a = DataPolishing(g)
+#igraph.summary(a.Graph)
 #print a.Graph.maximal_cliques(min = 3)
 #print len(a.Graph.maximal_cliques(min = 3))
-#print b.Graph.maximal_cliques(min = 3)
-print len(b.Graph.maximal_cliques(min = 3))
-#igraph.write(a.Graph, "polished_graph_direct.gml")
-#igraph.write(b.Graph, "polished_graph.gml")
 
+#a.data_polish(polish_ratio = pr)
+
+#print a.Graph.maximal_cliques(min = 3)
+#print len(a.Graph.maximal_cliques(min = 3))
+#igraph.write(a.Graph, "polished_grapht.gml")
 #igraph.summary(a.Graph)
 
-igraph.summary(b.Graph)
+#c = Experiment(5000)
 
+#igraph.summary(c.Graph)
+#c.make_Graph(15, 200, prob = 0.1)
+#igraph.summary(c.Graph)
+#print len(c.clique_list)
+#g = c.Graph.copy()
+#d = DataPolishing(g)
+#igraph.summary(d.Graph)
+#print len(d.Graph.maximal_cliques(min = 3))
+#igraph.write(d.Graph, "randam_clique_5000.gml")
+#d.data_polish(polish_ratio = pr)
+#igraph.summary(d.Graph)
+#print len(d.Graph.maximal_cliques(min = 3))
+#igraph.write(d.Graph, "polished_clique_5000.gml")
+#print "recall = " , c.recall(d.Graph)
+#print "precision = " , c.precision(d.Graph)
+#print "accuracy = " , c.accuracy(d.Graph)
+
+g = igraph.read("twitter_graph.gml")
+a = DataPolishing(g)
+print "original:"
+igraph.summary(a.Graph)
+print len(a.Graph.maximal_cliques(min = 3))
+
+a.data_polish(polish_ratio = pr)
+
+print "polished"
+igraph.summary(a.Graph)
+print len(a.Graph.maximal_cliques(min = 3))
+
+igraph.write(a.Graph, "polished_twitter_grapht.gml")
