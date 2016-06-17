@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
 Created on 2016/02/05
-
 @author: gocho
 '''
 from igraph.test.cliques import CliqueTests
@@ -58,7 +57,7 @@ class DataPolishing:
             #starttime = time.clock()
             for u in xrange(self.Graph.vcount()):
                 for w in self.Graph.neighbors(u):
-                    for v in [x for x in self.Graph.neighbors(w) if x < u]:
+                    for v in [x for x in self.Graph.neighborhood(w) if x < u]:
                         self.polish(u, v, sim, polish_ratio)
             #endtime = time.clock()
             if(temp == self.Graph.get_edgelist()):
@@ -76,7 +75,7 @@ class DataPolishing:
             #starttime = time.clock()
             for u in xrange(self.Graph.vcount()):
                 for w in self.Graph.neighbors(u):
-                    for v in [x for x in self.Graph.neighbors(w) if x < u]:
+                    for v in [x for x in self.Graph.neighborhood(w) if x < u]:
                         self.polish_sparse(u, v, sim, polish_ratio)
             #endtime = time.clock()
             if(temp == self.Graph.get_edgelist()):
