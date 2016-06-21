@@ -1,0 +1,111 @@
+# -*- coding: utf-8 -*-
+'''
+Created on 2016/06/20
+
+@author: gocho
+'''
+"""
+データ研磨の手法の実装
+論文
+"Micro-Clustering: Finding Small Clusters in Large Diversity, Takeaki Uno et.al"
+Networkxを使用
+"""
+
+import networkx
+import numpy as np
+from scipy.sparse import lil_matrix
+import random
+
+class DataPolishing:
+    """
+    初期化。グラフを引数として与え、グラフを単純グラフにする。
+    """
+    def __init__(self, Graph):
+        self.Graph = Graph
+        print "init Graph"
+
+    """
+    データ研磨
+    引数で与えられた類似度と研磨率で辺の操作をする。
+    """
+    def polish(self, vertex0, vertex1, sim, polish_ratio = 0.3):
+        are_connected_flag = self.Graph.has_edge(vertex0, vertex1) #vertex0とvertex1の間に辺があるか
+        if(not(are_connected_flag) and sim >= polish_ratio):            #辺がつながっていなくて類似度が大きい
+            self.Graph.add_edge(vertex0, vertex1)
+        elif(are_connected_flag and sim < polish_ratio):                #辺がつながっていて類似度小さい
+            self.Graph.remove_edge(vertex0,vertex1)
+
+    """
+    directな方法(O(|V|^2))
+    igraphでのjaccard係数は頂点数が多くなるとメモリーエラーを起こすため大きなグラフでは使えない
+    """
+    def data_polish_direct(self, polish_ratio = 0.3, loop = 30):
+        for i in xrange(loop):
+            sim = self.Graph.similarity_jaccard()   #jaccard係数求める
+            temp = self.Graph.edges()        #研磨前の辺のリスト
+            for j in xrange(self.Graph.number_of_nodes()):
+                for k in [x for x in xrange(self.Graph.number_of_nodes()) if x < j]:
+                    self.polish(j, k, sim[k][j], polish_ratio)
+            if(temp == self.Graph.edges()):
+                print "break at " + str(i+1) + " times"
+                break
+        print "end", i+1 , "times"
+
+    """
+    頂点の比較するペアを限定して高速化したもの。
+    スケールフリーなグラフ(一部次数が大きい頂点があるがほとんどの頂点は次数が小さい)で有効
+    詳細は論文中に記載あり
+    """
+    def data_polish(self, polish_ratio = 0.3, loop = 30):
+        for i in xrange(loop):
+            intersection = [0] * self.Graph.number_of_nodes()
+            temp = self.Graph.copy()
+            for u in xrange(self.Graph.number_of_nodes()):
+                L = []
+                for w in (temp.neighbors(u)+[u]):
+                    for v in [x for x in (temp.neighbors(w)+[w]) if x < u]:
+                        if(intersection[v] == 0):
+                            L.append(v)
+                        intersection[v] += 1
+                for v in L:
+                    sim = float(intersection[v]) / ((temp.degree(v)+1) + (temp.degree(u)+1) - intersection[v])
+                    self.polish(u, v, sim, polish_ratio)
+                    intersection[v] = 0
+            if(temp.edges() == self.Graph.edges()):
+                print "break at " + str(i+1) + " times"
+                break
+        print "end", i+1 , "times"
+
+    def jaccard(self):
+        sim = np.zeros([self.Graph.vcount(), self.Graph.vcount()])
+        intersection = [0] * self.Graph.vcount()
+        for u in xrange(self.Graph.vcount()):
+            L = []
+            for w in self.Graph.neighborhood(u):
+                for v in [x for x in self.Graph.neighborhood(w) if x <= u]:
+                    if(intersection[v] == 0):
+                        L.append(v)
+                    intersection[v] += 1
+            for v in L:
+                #print (v, u.index, intersection[v])
+                sim[v][u] = float(intersection[v]) / (self.Graph.neighborhood_size(v)+ self.Graph.neighborhood_size(u) - intersection[v])
+                sim[u][v] = sim[v][u]
+                intersection[v] = 0
+        return sim
+
+    def jaccard_sparse(self):
+        sim = lil_matrix((self.Graph.vcount(), self.Graph.vcount()))
+        intersection = [0] * self.Graph.vcount()
+        for u in xrange(self.Graph.vcount()):
+            L = []
+            for w in self.Graph.neighborhood(u):
+                for v in [x for x in self.Graph.neighborhood(w) if x <= u]:
+                    if(intersection[v] == 0):
+                        L.append(v)
+                    intersection[v] += 1
+            for v in L:
+                #print (v, u.index, intersection[v])
+                sim[v, u] = float(intersection[v]) / (self.Graph.neighborhood_size(v)+ self.Graph.neighborhood_size(u) - intersection[v])
+                sim[u, v] = sim[v, u]
+                intersection[v] = 0
+        return sim
